@@ -1,0 +1,5 @@
+Must-haves for all projects:
+
+project stored in a repository from the start (viewable history of well-described contributions from all team members who collaborate) (15 pp.)
+code and results with appropriate documentation (e.g. Markdown) appropriate for full reproducibility (including software version, etc.) (15 pp.)
+code in a clean and user-friendly format (10 pp.)

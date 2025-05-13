@@ -1,0 +1,4 @@
+Jupyter Notebook (7.2.2)
+Python (3.12.10)
+Visual Studio Code (1.100.0)
+Chat gpt (GPT-4o) 
