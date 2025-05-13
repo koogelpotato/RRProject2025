@@ -31,7 +31,8 @@ This repository provides **clean, reproducible implementations** of the hybrid `
 │   │   └── project.ipynb
 │   │   
 │   └── data_set/       
-├── pdf_paper/
+├── Mustapa_2019_J._Phys.__Conf._Ser._1366_012130.pdf
 ├── requirements.txt
-├── LICENSE
+├── instruments.txt
+├── LICENSE.txt
 └── README.md
