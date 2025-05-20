@@ -655,4 +655,6 @@ plt.legend()
 plt.show()
 ```
 
+## 5 Conclusion
+
 There is not enough obsservations to even fit GARCH model, so we need to find and attach few papers where it states that we need at least 250-300 observations to run GARCH but we have around 170.
