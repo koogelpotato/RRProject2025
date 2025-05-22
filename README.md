@@ -25,14 +25,28 @@ This repository provides **clean, reproducible implementations** of the hybrid `
 ## 🗂️ Repository Structure
 
 ```bash
-.
-├── data/
-│   ├── code/
-│   │   └── project.ipynb
-│   │   
-│   └── data_set/       
-├── Mustapa_2019_J._Phys.__Conf._Ser._1366_012130.pdf
-├── requirements.txt
-├── instruments.txt
-├── LICENSE.txt
-└── README.md
+|   instruments.txt
+|   LICENSE.txt
+|   Mustapa_2019_J._Phys.__Conf._Ser._1366_012130.pdf
+|   README.md
+|   requirements.txt
+|
+\---data
+    +---code
+    |       project.ipynb
+    |
+    +---data_set
+    |       train.csv
+    |
+    \---quarto
+        |   project.html
+        |   project.qmd
+        |   train.csv
+        |
+        \---images
+                figure_2.png
+                figure_3.png
+                figure_4.png
+                table_1.png
+                table_2.png
+```
