@@ -19,6 +19,45 @@ format:
         self-contained: true
         embed-resources: true
 title-block-banner: true
+references:
+  - id: paper_1
+    type: paper-conference
+    title: "How does Sample Size Affect GARCH Models?"
+    author:
+      - family: Ng
+        given: H.s.
+      - family: Lam
+        given: Kai-Pui
+    issued:
+      year: 2006
+      month: 1
+    container-title: "Proceedings of the 2006 Joint Conference on Information Sciences, JCIS 2006"
+    publisher: "Kaohsiung, Taiwan, ROC"
+    event: "2006 Joint Conference on Information Sciences"
+    event-date: "October 8-11, 2006"
+    DOI: "10.2991/jcis.2006.139"
+    URL: "https://doi.org/10.2991/jcis.2006.139"
+    source: "DBLP"
+    license: "CC BY-NC 4.0"
+
+  - id: paper_2
+    type: article-journal
+    title: "Small Sample Properties of GARCH Estimates and Persistence"
+    author:
+      - family: Hwang
+        given: Soosung
+      - family: Valls Pereira
+        given: Pedro L.
+    container-title: "European Journal of Finance"
+    volume: 12
+    issue: "6-7"
+    page: "473-494"
+    issued:
+      year: 2006
+      month: 2
+    DOI: "10.1080/13518470500039436"
+    URL: "https://doi.org/10.1080/13518470500039436"
+    source: "RePEC"
 ---
 
 
@@ -59,13 +98,16 @@ import seaborn as sns
 
 ```{python}
 #| output: false
+# Define the start date and the end date for the data analysis or time series
 start_date = '2001-01-01'
 end_date = '2018-12-31'
 
+# Download monthly S&P 500 data from Yahoo Finance
 sp500 = yf.download('^GSPC', start = start_date, end = end_date, interval = '1mo');
 ```
 
 ```{python}
+# Display the first 5 rows of the S&P 500 dataset
 sp500.head()
 ```
 
@@ -76,6 +118,7 @@ sp500.head()
 ##### 2.3.1 Column Standardization
 
 ```{python}
+# Show column names of the S&P 500 dataset
 sp500.columns
 ```
 
@@ -83,10 +126,12 @@ sp500.columns
 # Flatten the MultiIndex columns into a single level
 sp500.columns = ['_'.join(col).strip() for col in sp500.columns.values]
 
+# Show first 5 rows of the S&P 500 data
 sp500.head()
 ```
 
 ```{python}
+# Show column names of the S&P 500 dataset
 sp500.columns
 ```
 
@@ -97,29 +142,35 @@ sp500 = sp500.reset_index()
 # Conver 'Date' column to datetime format
 sp500['Date'] = pd.to_datetime(sp500['Date'])
 
+# Show the first 5 rows of the S&P 500 dataset
 sp500.head()
 ```
 
 ```{python}
+# Rename columns: keep 'Date' for the first column and remove ticker symbol from all other columns
 sp500.columns = ['Date'] + [col.split('_')[0] for col in sp500.columns[1:]]
 
+# Display the last 5 rows of the S&P 500 dataset
 sp500.tail()
 ```
 
 > **Paper**: *There is a total of 216 monthly observations.*
 
 ```{python}
+# Save the S&P 500 data to a CSV file named 'train.csv' without the index column
 sp500.to_csv('train.csv', index = False)
 
+# Get the dimensions (rows, columns) of the S&P 500 dataset
 sp500.shape
 ```
 
-We see that we have 216 month in our dataset, which is alligned with the provided data in the paper.
+We observe that our dataset contains 216 months, which aligns with the data reported in the paper.
 
 ```{python}
-# Difference of order 1
+# Calculate the first-order difference of the 'Close' prices
 sp500['close_diff'] = sp500['Close'].diff()
 
+# Display the first 5 rows of the updated dataset with 'close_diff'
 sp500.head()
 ```
 
@@ -128,17 +179,26 @@ sp500.head()
 ##### 2.3.2 Train-Test Split
 
 ```{python}
+# Split the dataset into training data up to December 31, 2017
 train = sp500.loc[:'2017-12-31']
+
+# Split the dataset into test data from January 1, 2018 onward
 test = sp500.loc['2018-01-01':]
 ```
 
 ```{python}
+# Display the number of rows and columns in the training dataset
 print(train.shape)
+
+# Display the full training dataset
 train
 ```
 
 ```{python}
+# Show the shape (rows, columns) of the test dataset
 print(test.shape)
+
+# Display the full test dataset
 test
 ```
 
@@ -148,9 +208,12 @@ test
 
 #### 3.1 Train-Test Comparison
 
+Below there is a plot from the paper showing the S&P 500 adjusted closing price over time.
+
 ![](./images/figure_2.png)
 
 ```{python}
+# Plot the S&P 500 closing prices over time
 plt.figure(figsize = (12, 6))  
 plt.plot(sp500['Date'], sp500['Close'], label = 'S&P 500 Close')  # Plot Date vs Close
 plt.xlabel('Date')
@@ -163,43 +226,54 @@ plt.show()
 In terms of graphs we see that they plotted the whole df - sp500; not split train and test
 
 ```{python}
+# Set Date as index
+train.set_index('Date', inplace=True)
+test.set_index('Date', inplace=True)
+
 fig, axs = plt.subplots(1, 2, figsize = (16, 6))  # 1 row, 2 columns
 
-# Plot train close prices on the left subplot
-axs[0].plot(train['Close'], color = 'red')
+# Plot train data
+axs[0].plot(train.index, train['Close'], color='red')
 axs[0].set_title('Plot of Close - train')
-axs[0].set_xlabel('Index')
-axs[0].set_ylabel('Price of S&P')
+axs[0].set_xlabel('Date')
+axs[0].set_ylabel('Price of S&P 500')
 axs[0].grid(True)
 
-# Plot test close prices on the right subplot
-axs[1].plot(test['Close'], color = 'red')
+# Plot test data
+axs[1].plot(test.index, test['Close'], color='red')
 axs[1].set_title('Plot of Close - test')
-axs[1].set_xlabel('Index')
-axs[1].set_ylabel('Price of S&P')
+axs[1].set_xlabel('Date')
+axs[1].set_ylabel('Price of S&P 500')
 axs[1].grid(True)
 
-plt.tight_layout()  # Adjust spacing to prevent overlap
+plt.tight_layout()
 plt.show()
 ```
 
 #### 3.2 Autocorrelation Analysis
 
+Below is a correlogram of the S&P 500 adjusted closing price, including ACF and PACF plots, along with related statistical tests as shown in the paper.
+
 ![](./images/figure_3.png)
 
-It is not defined they test ACF/PACF for the whole dataframa or only train; so we decided to test ACF/PACF/AC/PAC/Q-stat/Prob for full dataframe/train; no need for test since we have only 14 observations
+The paper does not specify whether the ACF/PACF tests were performed on the full dataset or just the training set.
+
+Therefore, we decided to conduct ACF, PACF, autocorrelation, partial autocorrelation, Q-statistics, and corresponding probability tests on both the full dataset and the training set.
+
+We excluded the test set since it contains only 14 observations
 
 ```{python}
-fig, axes = plt.subplots(1, 2, figsize = (12, 4))
+# Create side-by-side plots for ACF and PACF of S&P 500 Close prices
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
 # Autocorrelation plot
-plot_acf(sp500['Close'], lags = 20, ax = axes[0]) # ACF
+plot_acf(sp500['Close'], lags=20, ax=axes[0]) # ACF
 axes[0].set_title("ACF")
 axes[0].set_ylim([-1.5,1.5])
 axes[0].set_xticks(range(0, 21, 1))
 
 # Partial autocorrelation plot
-plot_pacf(sp500['Close'], lags = 20, ax = axes[1]) # PACF
+plot_pacf(sp500['Close'], lags=20, ax=axes[1]) # PACF
 axes[1].set_title("PACF")
 axes[1].set_ylim([-0.5,0.5])
 axes[1].set_xticks(range(0, 21, 1))
@@ -208,39 +282,41 @@ plt.show()
 ```
 
 ```{python}
-# Calculate numerical ACF/PACF values
-acf_values_sp500, acf_confint_sp500 = acf(sp500['Close'], nlags = 20, alpha = 0.05)
-pacf_values_sp500, pacf_confint_sp500 = pacf(sp500['Close'], nlags = 20, alpha = 0.05)
+# Calculate ACF and PACF values with 95% confidence intervals
+acf_values_sp500, acf_confint_sp500 = acf(sp500['Close'], nlags=20, alpha=0.05)
+pacf_values_sp500, pacf_confint_sp500 = pacf(sp500['Close'], nlags=20, alpha=0.05)
 
-# Ljung-Box Q-test
-q_test_sp500 = acorr_ljungbox(sp500['Close'], lags = 20, return_df = True) 
+# Perform Ljung-Box Q-test for autocorrelation up to lag 20
+q_test_sp500 = acorr_ljungbox(sp500['Close'], lags=20, return_df=True) 
 
-# Create EViews-style summary table
+# Create a summary table similar to EViews output
 results_sp500 = pd.DataFrame({
     'Lag': range(1, 21),
-    'AC': acf_values_sp500[1:],  # Exclude lag-0
-    'PAC': pacf_values_sp500[1:],
+    'AC': acf_values_sp500[1:], # Autocorrelation (excluding lag 0)
+    'PAC': pacf_values_sp500[1:],  # Partial autocorrelation (excluding lag 0)
     'Q-Stat': q_test_sp500['lb_stat'].values,
     'Prob': q_test_sp500['lb_pvalue'].values
 })
 
+# Print the summary rounded to 4 decimals
 print("\nAutocorrelation Summary:")
 print(results_sp500.round(4))
 ```
 
-So we see that values from the paper and here are not aligned, so we need to test train/test
+Since our results differ from those in the paper, we will run the tests on the training set.
 
 ```{python}
-fig, axes = plt.subplots(1, 2, figsize = (12, 4))
+# Plot ACF and PACF for the training dataset's Close prices
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
-# Autocorrelation plot
-plot_acf(train['Close'], lags = 20, ax = axes[0]) # ACF
+# Autocorrelation function (ACF) plot
+plot_acf(train['Close'], lags=20, ax=axes[0])
 axes[0].set_title("ACF")
 axes[0].set_ylim([-1.5,1.5])
 axes[0].set_xticks(range(0, 21, 1))
 
-# Partial autocorrelation plot
-plot_pacf(train['Close'], lags = 20, ax = axes[1]) # PACF
+# Partial autocorrelation function (PACF) plot
+plot_pacf(train['Close'], lags=20, ax=axes[1])
 axes[1].set_title("PACF")
 axes[1].set_ylim([-0.5,0.5])
 axes[1].set_xticks(range(0, 21, 1))
@@ -249,29 +325,31 @@ plt.show()
 ```
 
 ```{python}
-# Calculate numerical ACF/PACF values
-acf_values_train, acf_confint_train = acf(train['Close'], nlags = 20, alpha = 0.05)
-pacf_values_train, pacf_confint_train = pacf(train['Close'], nlags = 20, alpha = 0.05)
+# Calculate ACF and PACF values with 95% confidence intervals for training data
+acf_values_train, acf_confint_train = acf(train['Close'], nlags=20, alpha=0.05)
+pacf_values_train, pacf_confint_train = pacf(train['Close'], nlags=20, alpha=0.05)
 
-# Ljung-Box Q-test
-q_test_train = acorr_ljungbox(train['Close'], lags = 20, return_df = True) 
+# Perform Ljung-Box Q-test on training data
+q_test_train = acorr_ljungbox(train['Close'], lags=20, return_df=True) 
 
-# Create EViews-style summary table
+# Create summary table like EViews output for training data
 results_train = pd.DataFrame({
     'Lag': range(1, 21),
-    'AC': acf_values_train[1:],  # Exclude lag-0
-    'PAC': pacf_values_train[1:],
+    'AC': acf_values_train[1:],  # Autocorrelation, excluding lag 0
+    'PAC': pacf_values_train[1:], # Partial autocorrelation, excluding lag 0
     'Q-Stat': q_test_train['lb_stat'].values,
     'Prob': q_test_train['lb_pvalue'].values
 })
 
+# Print the summary rounded to 4 decimals
 print("\nAutocorrelation Summary:")
 print(results_train.round(4))
 ```
 
-Here we see that results are similar, but there is still some rounding or precision
+The results are quite similar, with minor differences likely due to rounding, precision, or differences in software implementations.
 
 ```{python}
+# Overview of S&P500 dataset
 sp500
 ```
 
@@ -281,32 +359,36 @@ sp500
 
 ##### 3.3.1 Differencing
 
+Below there is the S&P 500 series after first differencing, as shown in the paper.
+
 ![](./images/figure_4.png)
 
 ```{python}
-fig, axs = plt.subplots(1, 2, figsize = (16, 6))  # 1 row, 2 columns
+# Create side-by-side plots for first difference of Close prices in train and test sets
+fig, axs = plt.subplots(1, 2, figsize=(16, 6))  # 1 row, 2 columns
 
 # Plot train difference of close prices on the left subplot
-axs[0].plot(train['close_diff'], color = 'red')
+axs[0].plot(train['close_diff'], color='red')
 axs[0].set_title('Plot of Diff Close - train')
 axs[0].set_xlabel('Index')
 axs[0].set_ylabel('Price of  diff S&P')
 axs[0].grid(True)
 
 # Plot test difference of close prices on the right subplot
-axs[1].plot(test['close_diff'], color = 'red')
+axs[1].plot(test['close_diff'], color='red')
 axs[1].set_title('Plot of Diff Close - test')
 axs[1].set_xlabel('Index')
 axs[1].set_ylabel('Price of diff S&P')
 axs[1].grid(True)
 
-plt.tight_layout()  # Adjust spacing to prevent overlap
+plt.tight_layout() 
 plt.show()
 ```
 
 ```{python}
-plt.figure(figsize = (12, 6))  
-plt.plot(sp500['Date'], sp500['close_diff'], label = 'S&P 500 diff_close')  # Plot Date vs Close
+# Plot of first difference of S&P 500 closing prices over time
+plt.figure(figsize=(12, 6))  
+plt.plot(sp500['Date'], sp500['close_diff'], label='S&P 500 diff_close')  # Plot Date vs Close
 plt.xlabel('Date')
 plt.ylabel('Difference ofof Close Price')
 plt.title('S&P 500 Differences of Closing Prices')
@@ -314,18 +396,13 @@ plt.legend()
 plt.show()
 ```
 
-```{python}
-train
-```
-
-<br>
-
 ##### 3.3.2 ADF Testing
 
 ```{python}
-def adf_test(series, title = ''):
+# Define a function to perform the Augmented Dickey-Fuller (ADF) test on a time series
+def adf_test(series, title=''):
     """Perform ADF test with trend and intercept"""
-    result = adfuller(series, regression = 'ct', autolag = 'AIC')
+    result = adfuller(series, regression='ct', autolag='AIC')
     output = {
         'Test Statistic': result[0],
         'p-value': result[1],
@@ -333,6 +410,8 @@ def adf_test(series, title = ''):
     }
     return output
 ```
+
+ADF test performed on the whole dataset closing prices.
 
 ```{python}
 # Run tests
@@ -356,6 +435,8 @@ print("\nCritical Values:")
 for key in level['Critical Values']:
     print(f"{key}%: {level['Critical Values'][key]:.5f}")
 ```
+
+ADF test performed on the train dataset closing prices.
 
 ```{python}
 # Run tests
@@ -382,23 +463,20 @@ for key in level['Critical Values']:
 
 ![](./images/table_1.png)
 
-Possible challenge: such small difference from the work can be from the problem that it is not stated when differences where calculated, since in our approach we calculated them
+Here we received results similar to those reported in the paper.
 
 ```{python}
-train
-```
-
-```{python}
-fig, axes = plt.subplots(1, 2, figsize = (12, 4))
+# Plot ACF and PACF of first differenced train 'Close' prices
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
 # Autocorrelation plot
-plot_acf(np.array(train['Close'].diff()[1:]), lags = 20, ax = axes[0]) # ACF
+plot_acf(np.array(train['Close'].diff()[1:]), lags=20, ax=axes[0]) # ACF
 axes[0].set_title("ACF")
 axes[0].set_ylim([-0.5,0.5])
 axes[0].set_xticks(range(0, 21, 1))
 
 # Partial autocorrelation plot
-plot_pacf(np.array(train['Close'].diff()[1:]), lags = 20, ax = axes[1]) # PACF
+plot_pacf(np.array(train['Close'].diff()[1:]), lags=20, ax=axes[1]) # PACF
 axes[1].set_title("PACF")
 axes[1].set_ylim([-0.5,0.5])
 axes[1].set_xticks(range(0, 21, 1))
@@ -406,38 +484,44 @@ axes[1].set_xticks(range(0, 21, 1))
 plt.show()
 ```
 
-In their paper they didn't provide any ACF/PACF for stationary series. Additionaly they mixed up with figure numbering. Hence, it is not clear why they decided to stick with ARIMA(2,1,2) since these lags are not significant.
+The paper lacks ACF/PACF plots for stationary series and has inconsistent figure numbering.
+
+The rationale for selecting the ARIMA(2,1,2) model is unclear, given that the corresponding lags are not statistically significant.
+
+While alternative lag structures, such as 8 or 19, were considered, their inclusion is impractical due to the limited length of the out-of-sample dataset, which spans only 14 months.
+
+This constraint restricts the reliability of models with higher lag orders.
 
 <br>
 
 ## 4 Model Selection
 
-We decided to test for different lags including 8/19; we need to consider ARMA with lags 8 or 19, but it doesn't make sense since we have our test out-of-sample dataframe which consists of only 14 month.
-
 ![](./images/table_2.png)
 
 ```{python}
 #| output: false
-ar1 = ARIMA(train['Close'].values, order = (1, 1, 0)).fit()
-ma1 = ARIMA(train['Close'].values, order = (0, 1, 1)).fit()
-arma11 = ARIMA(train['Close'].values, order = (1, 1, 1)).fit()
-ar2 = ARIMA(train['Close'].values, order = (2, 1, 0)).fit()
-ma2 = ARIMA(train['Close'].values, order = (0, 1, 2)).fit()
-arma21 = ARIMA(train['Close'].values, order = (2, 1, 1)).fit()
-arma12 = ARIMA(train['Close'].values, order = (1, 1, 2)).fit()
-ar3 = ARIMA(train['Close'].values, order = (3, 1, 0)).fit()
-arma31 = ARIMA(train['Close'].values, order = (3, 1, 1)).fit()
-arma22 = ARIMA(train['Close'].values, order = (2, 1, 2)).fit()
-ar8 = ARIMA(train['Close'].values, order = ([8], 1, 0)).fit()
-ma8 = ARIMA(train['Close'].values, order = (0, 1, [8])).fit()
-arma88 = ARIMA(train['Close'].values, order = ([8], 1, [8])).fit()
-ar19 = ARIMA(train['Close'].values, order = ([19], 1, 0)).fit()
-ma19 = ARIMA(train['Close'].values, order = (0, 1, [19])).fit()
-ar20 = ARIMA(train['Close'].values, order = ([20], 1, 0)).fit()
-ma20 = ARIMA(train['Close'].values, order = (0, 1, [20])).fit()
+# Fit ARIMA models with different (p, d, q) parameters on training data
+ar1 = ARIMA(train['Close'].values, order=(1, 1, 0)).fit()
+ma1 = ARIMA(train['Close'].values, order=(0, 1, 1)).fit()
+arma11 = ARIMA(train['Close'].values, order=(1, 1, 1)).fit()
+ar2 = ARIMA(train['Close'].values, order=(2, 1, 0)).fit()
+ma2 = ARIMA(train['Close'].values, order=(0, 1, 2)).fit()
+arma21 = ARIMA(train['Close'].values, order=(2, 1, 1)).fit()
+arma12 = ARIMA(train['Close'].values, order=(1, 1, 2)).fit()
+ar3 = ARIMA(train['Close'].values, order=(3, 1, 0)).fit()
+arma31 = ARIMA(train['Close'].values, order=(3, 1, 1)).fit()
+arma22 = ARIMA(train['Close'].values, order=(2, 1, 2)).fit()
+ar8= ARIMA(train['Close'].values, order=([8], 1, 0)).fit()
+ma8= ARIMA(train['Close'].values, order=(0, 1, [8])).fit()
+arma88 = ARIMA(train['Close'].values, order=([8], 1, [8])).fit()
+ar19= ARIMA(train['Close'].values, order=([19], 1, 0)).fit()
+ma19= ARIMA(train['Close'].values, order=(0, 1, [19])).fit()
+ar20= ARIMA(train['Close'].values, order=([20], 1, 0)).fit()
+ma20= ARIMA(train['Close'].values, order=(0, 1, [20])).fit()
 ```
 
 ```{python}
+# List of fitted ARIMA models
 models = [ar1, ma1, arma11, ar2, ma2, arma21, arma12, ar3, arma31, arma22, ar8, ma8, arma88, ar19, ma19, ar20, ma20] # list with all the models
 names = ['ar1', 'ma1', 'arma11','ar2', 'ma2', 'arma21', 'arma12', 'ar3', 'arma31', 'arma22', 'ar8', 'ma8', 'arma88', 'ar19', 'ma19', 'ar20', 'ma20'] # models' names
 
@@ -447,26 +531,35 @@ for model, name in zip(models, names):
     results.append([name, round(model.aic,2), round(model.bic,2)])
 results_df = pd.DataFrame(results)
 results_df.columns = ['model', 'AIC', 'BIC']
+```
 
+```{python}
+# Display models sorted by AIC
 print('Models by AIC:\n',results_df.sort_values('AIC'))
+```
+
+```{python}
+# Display models sorted by BIC 
 print('Models by BIC:\n',results_df.sort_values('BIC'))
 ```
 
 ```{python}
+# Display the summary statistics for the AR(19) model
 print(ar19.summary())
 ```
 
 ```{python}
-fig, axes = plt.subplots(1, 2, figsize = (12, 4))
+# Plot ACF and PACF of residuals from AR(19) model
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
 # Autocorrelation plot
-plot_acf(ar19.resid, lags = 20, ax = axes[0]) # ACF
+plot_acf(ar19.resid, lags=20, ax=axes[0]) # ACF
 axes[0].set_title("ACF")
 axes[0].set_ylim([-0.5,0.5])
 axes[0].set_xticks(range(0, 21, 1))
 
 # Partial autocorrelation plot
-plot_pacf(ar19.resid, lags = 20, ax = axes[1]) # PACF
+plot_pacf(ar19.resid, lags=20, ax=axes[1]) # PACF
 axes[1].set_title("PACF")
 axes[1].set_ylim([-0.5,0.5])
 axes[1].set_xticks(range(0, 21, 1))
@@ -475,20 +568,22 @@ plt.show()
 ```
 
 ```{python}
+# Display the summary statistics for the AR(8) model
 print(ar8.summary())
 ```
 
 ```{python}
-fig, axes = plt.subplots(1, 2, figsize = (12, 4))
+# Plot ACF and PACF of residuals from AR(8) model
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
 # Autocorrelation plot
-plot_acf(ar8.resid, lags = 20, ax = axes[0]) # ACF
+plot_acf(ar8.resid, lags=20, ax=axes[0]) # ACF
 axes[0].set_title("ACF")
 axes[0].set_ylim([-0.5,0.5])
 axes[0].set_xticks(range(0, 21, 1))
 
 # Partial autocorrelation plot
-plot_pacf(ar8.resid, lags = 20, ax = axes[1]) # PACF
+plot_pacf(ar8.resid, lags=20, ax=axes[1]) # PACF
 axes[1].set_title("PACF")
 axes[1].set_ylim([-0.5,0.5])
 axes[1].set_xticks(range(0, 21, 1))
@@ -496,7 +591,22 @@ axes[1].set_xticks(range(0, 21, 1))
 plt.show()
 ```
 
-So it is not clear why they decided to stick with ARIMA(2,1,2) since these lags are not significant and we decided to test for different lags including 8/19; we need to consider ARMA with lags 8 or 19, but it doesn't make sense since we have our test out-of-sample dataframe which consists of only 14 month
+Although AIC and BIC suggest that models like AR(19) may perform better than ARMA(2,2) which was presented as the best in the paper, this is not reasonable because the out-of-sample dataset contains only 14 observations. Including 19 lags in such a small sample does not make sense.
+
+Even considering ARMA(2,2), EViews results differ significantly in AIC/BIC and constant terms because they used I(1) data.
+
+Since ARIMA differencing removes the mean, no constant is needed—adding one implies a trend in the original series.
+
+We tried various optimizers and software; while EViews results similar to theirs, Python and Gretl gave different outcomes we couldn’t replicate.
+
+![](./images/table_3.png)
+
+```{python}
+# Display the summary statistics for the AR(8) model
+print(arma22.summary())
+```
+
+We decided to split the data with train for 80% and test for 20% and estimate ARIMA model.
 
 ```{python}
 # Assuming sp500 is sorted by date in ascending order
@@ -507,25 +617,28 @@ test_df = sp500.iloc[train_size:]
 ```
 
 ```{python}
+# Check the dimensions of the training dataset (rows, columns)
 train_df.shape
 ```
 
 ```{python}
+# Check the dimensions of the test dataset (rows, columns)
 test_df.shape
 ```
 
 ```{python}
-fig, axs = plt.subplots(1, 2, figsize = (16, 6))  # 1 row, 2 columns
+# Create side-by-side plots for training and test closing prices
+fig, axs = plt.subplots(1, 2, figsize=(16, 6))  # 1 row, 2 columns
 
 # Plot train difference of close prices on the left subplot
-axs[0].plot(train_df['Close'], color = 'red')
+axs[0].plot(train_df['Close'], color='red')
 axs[0].set_title('Plot of Close - train')
 axs[0].set_xlabel('Index')
 axs[0].set_ylabel('Price of S&P')
 axs[0].grid(True)
 
 # Plot test difference of close prices on the right subplot
-axs[1].plot(test_df['Close'], color = 'red')
+axs[1].plot(test_df['Close'], color='red')
 axs[1].set_title('Plot of Close - test')
 axs[1].set_xlabel('Index')
 axs[1].set_ylabel('Price of S&P')
@@ -550,7 +663,7 @@ results = pd.DataFrame({
 
 # Format output
 print("Table 1. Augmented Dickey-Fuller Test\n")
-print(results.to_string(float_format=lambda x: f"{x:.5f}", index = False))
+print(results.to_string(float_format=lambda x: f"{x:.5f}", index=False))
 
 # Add critical values
 print("\nCritical Values:")
@@ -559,16 +672,16 @@ for key in level['Critical Values']:
 ```
 
 ```{python}
-fig, axes = plt.subplots(1, 2, figsize = (12, 4))
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
 # Autocorrelation plot
-plot_acf(np.array(train_df['Close'].diff()[1:]), lags = 20, ax = axes[0]) # ACF
+plot_acf(np.array(train_df['Close'].diff()[1:]), lags=20, ax=axes[0]) # ACF
 axes[0].set_title("ACF")
 axes[0].set_ylim([-0.5,0.5])
 axes[0].set_xticks(range(0, 21, 1))
 
 # Partial autocorrelation plot
-plot_pacf(np.array(train_df['Close'].diff()[1:]), lags = 20, ax = axes[1]) # PACF
+plot_pacf(np.array(train_df['Close'].diff()[1:]), lags=20, ax=axes[1]) # PACF
 axes[1].set_title("PACF")
 axes[1].set_ylim([-0.5,0.5])
 axes[1].set_xticks(range(0, 21, 1))
@@ -580,18 +693,20 @@ We see that it is monthly data is probably white noise; no significant autocorre
 
 ```{python}
 #| output: false
-arma00 = ARIMA(train_df['Close'].values, order = (0, 1, 0)).fit()
-ar1 = ARIMA(train_df['Close'].values, order = (1, 1, 0)).fit()
-ma1 = ARIMA(train_df['Close'].values, order = (0, 1, 1)).fit()
-arma11 = ARIMA(train_df['Close'].values, order = (1, 1, 1)).fit()
-ar2 = ARIMA(train_df['Close'].values, order = (2, 1, 0)).fit()
-ma2 = ARIMA(train_df['Close'].values, order = (0, 1, 2)).fit()
-arma21 = ARIMA(train_df['Close'].values, order = (2, 1, 1)).fit()
-arma12 = ARIMA(train_df['Close'].values, order = (1, 1, 2)).fit()
-arma22 = ARIMA(train_df['Close'].values, order = (2, 1, 2)).fit()
+# Fit various ARIMA models with different (p,d,q) orders on training data
+arma00 = ARIMA(train_df['Close'].values, order=(0, 1, 0)).fit()
+ar1 = ARIMA(train_df['Close'].values, order=(1, 1, 0)).fit()
+ma1 = ARIMA(train_df['Close'].values, order=(0, 1, 1)).fit()
+arma11 = ARIMA(train_df['Close'].values, order=(1, 1, 1)).fit()
+ar2 = ARIMA(train_df['Close'].values, order=(2, 1, 0)).fit()
+ma2 = ARIMA(train_df['Close'].values, order=(0, 1, 2)).fit()
+arma21 = ARIMA(train_df['Close'].values, order=(2, 1, 1)).fit()
+arma12 = ARIMA(train_df['Close'].values, order=(1, 1, 2)).fit()
+arma22 = ARIMA(train_df['Close'].values, order=(2, 1, 2)).fit()
 ```
 
 ```{python}
+# Evaluate and compare ARMA models by AIC and BIC
 models = [arma00, ar1, ma1, arma11, ar2, ma2, arma21, arma12, arma22] # list with all the models
 names = ['arma00', 'ar1', 'ma1', 'arma11','ar2', 'ma2', 'arma21', 'arma12', 'arma22'] # models' names
 
@@ -601,28 +716,53 @@ for model, name in zip(models, names):
     results.append([name, round(model.aic,2), round(model.bic,2)])
 results_df = pd.DataFrame(results)
 results_df.columns = ['model', 'AIC', 'BIC']
+```
 
+```{python}
+# Sort and display models by lowest AIC values
 print('Models by AIC:\n',results_df.sort_values('AIC'))
+```
+
+```{python}
+# Sort and display models by lowest BIC values
 print('Models by BIC:\n',results_df.sort_values('BIC'))
 ```
 
+The ARIMA model does not capture all dynamics and is likely not suitable for data at this frequency.
 
-
-ARIMA is not capturing all effects and is probably not the most appropriate model for such frequency of data
+Interestingly, the AR(0,0) model performs better, suggesting that the process may resemble white noise. And it makes no sense to test in on out-of-sample set.
 
 ```{python}
+# Summary of ARMA(0,0)
+print(arma00.summary())
+```
+
+```{python}
+# Summary of AR(1)
+print(ar1.summary())
+```
+
+```{python}
+# Summary of MA(1)
 print(ma1.summary())
 ```
 
+The paper used an ARMA model for the mean equation, but it seems incorrectly specified and estimated.
+
+For reference, we prepared data for GARCH modeling and created returns to plot the fitted distribution of log returns.
+
 ```{python}
-returns = train['Close'].diff().dropna()
+# Calculate daily returns as the difference of Close prices, dropping missing values
+returns = train['Close'].diff().dropna() 
 ```
 
 ```{python}
+# Check the dimensions of the training dataset (rows, columns)
 train_df.shape
 ```
 
 ```{python}
+# Fit multiple distributions to the returns data and plot their PDFs over the returns histogram
 params_normal = norm.fit(returns)
 params_expon = expon.fit(returns)
 params_gamma = gamma.fit(returns)
@@ -642,19 +782,32 @@ pdf_ged = gennorm.pdf(x, *params_ged)
 pdf_laplace = laplace.pdf(x, *params_laplace)
 
 plt.figure(figsize=(10, 6))
-sns.histplot(returns, kde = False, bins = 750, stat = 'density', color = 'gray', label = 'Returns')  # Changed to 200 bins
-plt.plot(x, pdf_normal, label = 'Normal', color = 'blue')
-plt.plot(x, pdf_expon, label = 'Exponential', color = 'red')
-plt.plot(x, pdf_gamma, label = 'Gamma', color = 'purple')
-plt.plot(x, pdf_t, label = 't-distribution', color = 'orange')
-plt.plot(x, pdf_ged, label = 'GED', color = 'brown')
-plt.plot(x, pdf_laplace, label = 'Laplace', color = 'pink')
+sns.histplot(returns, kde=False, bins=200, stat='density', color='gray', label='Returns')  
+plt.plot(x, pdf_normal, label='Normal', color='blue')
+plt.plot(x, pdf_expon, label='Exponential', color='red')
+plt.plot(x, pdf_gamma, label='Gamma', color='purple')
+plt.plot(x, pdf_t, label='t-distribution', color='orange')
+plt.plot(x, pdf_ged, label='GED', color='brown')
+plt.plot(x, pdf_laplace, label='Laplace', color='pink')
 plt.xlim(lower_limit, upper_limit)
 plt.title('Fitted Distributions to Log Returns')
 plt.legend()
 plt.show()
 ```
 
+There are insufficient observations to properly fit a GARCH model.
+
+In our case, we only have around 170 observations, which falls short of the recommended minimum sample size for reliable estimation.
+
+According to studies, a larger sample—typically at least 250 to 500 observations—is needed to ensure stable and accurate GARCH parameter estimates [@paper_1; @paper_2].
+
+<br>
+
 ## 5 Conclusion
 
-There is not enough obsservations to even fit GARCH model, so we need to find and attach few papers where it states that we need at least 250-300 observations to run GARCH but we have around 170.
+Possible challenges:
+
+* Not enough observations for reliable model estimation.
+* Lack of clear comments or details on model specifications.
+* EVIEWS uses different optimizers that cannot be exactly replicated in Python.
+* Confusion or mixing up of ARMA and ARIMA models in the literature review and throughout the analysis process.
