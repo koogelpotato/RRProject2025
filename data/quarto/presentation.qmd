@@ -1,0 +1,201 @@
+---
+title: "Reproducible Research Project"
+subtitle: "Modelling and forecasting S&P 500 stock prices using hybrid Arima-Garch Model"
+author: 
+    - name: "Andrew"
+    - name: "Michael"
+    - name: "Kacper"
+format: 
+  revealjs: 
+    slide-number: true
+    # slide-level: 2
+    navigation-mode: vertical
+    self-contained: true
+    embed-resources: true
+---
+
+# Why quarto?
+
+<br>
+
+* **Reproducibility**: Code and narrative live together; rerun with a single command (<kbd>quarto render</kbd>).
+
+* **Flexibility**: Support for Python, R, Julia, and more - no need to switch tools.
+
+* **Customization**: Easily tweak appearance, interactivity, and output formats (PDF, DOCX, slides).
+
+* **Portability**: Self-contained HTML is perfect for sharing e.g. with non-technical stakeholders.
+
+# Quarto file structure
+
+<br>
+
+* **Front-matter** (YAML section): Metadata and format settings.
+
+* **Sections** (<kbd>## 1 Introduction</kbd>, <kbd>## 2 Data Loading</kbd>, etc.): Markdown headings form the TOC.
+
+* **Code Chunks** (<kbd>{python}</kbd>): Executable blocks that produce figures/tables inline.
+
+* **Figures & Tables**: Referenced by their filenames or generated on the fly.
+
+* **References**: Automatically collected at the end from the `references:` YAML
+
+# Format of html file
+
+```{.yaml code-line-numbers="3-4"}
+format:
+    html:
+        theme: cosmo
+        highlight-style: github
+        toc: true
+        toc-title: Table of contents
+        toc-depth: 5
+        toc-expand: 4
+        code-tools: true
+        code-fold: false
+        smooth-scroll: true
+        self-contained: true
+        embed-resources: true
+title-block-banner: true
+```
+
+##
+
+![](./images_presentation/slide_2_1.png){fig-align="center"}
+
+# Format of html file
+
+```{.yaml code-line-numbers="5-8"}
+format:
+    html:
+        theme: cosmo
+        highlight-style: github
+        toc: true
+        toc-title: Table of contents
+        toc-depth: 5
+        toc-expand: 4
+        code-tools: true
+        code-fold: false
+        smooth-scroll: true
+        self-contained: true
+        embed-resources: true
+title-block-banner: true
+```
+
+##
+
+![](./images_presentation/slide_3_1.png){fig-align="center"}
+
+# Format of html file
+
+```{.yaml code-line-numbers="9-10"}
+format:
+    html:
+        theme: cosmo
+        highlight-style: github
+        toc: true
+        toc-title: Table of contents
+        toc-depth: 5
+        toc-expand: 4
+        code-tools: true
+        code-fold: false
+        smooth-scroll: true
+        self-contained: true
+        embed-resources: true
+title-block-banner: true
+```
+##
+
+![](./images_presentation/slide_4_1.png){fig-align="center"}
+
+# Format of html file
+
+```{.yaml code-line-numbers="11-13"}
+format:
+    html:
+        theme: cosmo
+        highlight-style: github
+        toc: true
+        toc-title: Table of contents
+        toc-depth: 5
+        toc-expand: 4
+        code-tools: true
+        code-fold: false
+        smooth-scroll: true
+        self-contained: true
+        embed-resources: true
+title-block-banner: true
+```
+
+# Format of html file
+
+```{.yaml code-line-numbers="14"}
+format:
+    html:
+        theme: cosmo
+        highlight-style: github
+        toc: true
+        toc-title: Table of contents
+        toc-depth: 5
+        toc-expand: 4
+        code-tools: true
+        code-fold: false
+        smooth-scroll: true
+        self-contained: true
+        embed-resources: true
+title-block-banner: true
+```
+
+##
+
+![](./images_presentation/slide_6_1.png){fig-align="center"}
+
+# References
+
+```yaml
+references:
+  - id: paper_1
+    type: paper-conference
+    title: "How does Sample Size Affect GARCH Models?"
+    author:
+      - family: Ng
+        given: H.s.
+      - family: Lam
+        given: Kai-Pui
+    issued:
+      year: 2006
+      month: 1
+    container-title: "Proceedings of the 2006 Joint Conference on Information Sciences, JCIS 2006"
+    publisher: "Kaohsiung, Taiwan, ROC"
+    event: "2006 Joint Conference on Information Sciences"
+    event-date: "October 8-11, 2006"
+    DOI: "10.2991/jcis.2006.139"
+    URL: "https://doi.org/10.2991/jcis.2006.139"
+    source: "DBLP"
+    license: "CC BY-NC 4.0"
+
+  - id: paper_2
+    type: article-journal
+    title: "Small Sample Properties of GARCH Estimates and Persistence"
+    author:
+      - family: Hwang
+        given: Soosung
+      - family: Valls Pereira
+        given: Pedro L.
+    container-title: "European Journal of Finance"
+    volume: 12
+    issue: "6-7"
+    page: "473-494"
+    issued:
+      year: 2006
+      month: 2
+    DOI: "10.1080/13518470500039436"
+    URL: "https://doi.org/10.1080/13518470500039436"
+    source: "RePEC"
+```
+
+##
+
+![](./images_presentation/slide_7_1.png){fig-align="center"}
+
+![](./images_presentation/slide_7_2.png){fig-align="center"}
