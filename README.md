@@ -49,4 +49,5 @@ This repository provides **clean, reproducible implementations** of the hybrid `
                 figure_4.png
                 table_1.png
                 table_2.png
+                table_3.png
 ```
